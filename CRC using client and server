@@ -1,0 +1,91 @@
+#client program
+import socket as s
+
+def xor(a, b):
+    res = []
+    for i in range(len(a)):
+        if a[i] == b[i]:
+            res.append('0')
+        else: 
+            res.append('1')
+    return res
+
+
+def client():
+    host = s.gethostname()
+    port = 3000
+    clientSocket = s.socket()
+    clientSocket.connect((host, port))
+
+    dividend = list(input("Enter the message: "))
+    divisor = list(input("Enter divisor: "))
+    crc = dividend.copy()
+    divisorLen = len(divisor)
+    dividend += ['0'] * (divisorLen - 1)
+    dividendLen = len(dividend)
+
+    for i in range(0, dividendLen - divisorLen + 1):
+        if dividend[0] == '1':
+            tem = xor(dividend[0:divisorLen], divisor)
+            for j in range(divisorLen):
+                dividend[j] = tem[j]
+        dividend.pop(0)
+
+    data = crc + dividend + [" "] + divisor
+    clientSocket.send("".join(data).encode())
+
+    clientSocket.close()
+
+client()
+
+
+
+
+
+
+#server program
+
+
+import socket as s
+
+def xor(a, b):
+    res = []
+    for i in range(len(a)):
+        if a[i] == b[i]:
+            res.append('0')
+        else:
+            res.append('1')
+
+    return res
+
+def server():
+    host = s.gethostname()
+    port = 3000
+    serverSocket = s.socket()
+    serverSocket.bind((host, port))
+    serverSocket.listen(2)
+    connec, address = serverSocket.accept()
+    print("connected address:", address)
+
+    data = connec.recv(1024).decode()
+    crc, divisor = data.split(' ')[0], data.split(' ')[1]
+
+    print("Received crc:", crc, " " + divisor)
+    crc = list(crc)
+    divisor = list(crc)
+
+    divisorLen = len(divisor)
+    crcLen = len(crc)
+
+    for i in range(0, crcLen - divisorLen + 1):
+        if crc[0] == '1':
+            tem = xor(crc[0:divisorLen], divisor)
+            for j in range(divisorLen):
+                crc[j] = tem[j]
+        crc.pop(0)
+    
+    print("The remainder is:", crc)
+
+    connec.close()
+        
+server()
