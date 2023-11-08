@@ -1,0 +1,45 @@
+def XOR(a, b):
+    c = []
+    for i in range(len(a)):
+        if a[i] == b[i]:
+            c.append('0')
+        else:
+            c.append('1')
+    return c
+
+divisor = list(input("Enter The Divisor: "))
+dividend = list(input("Enter The Dividend: "))
+crc = dividend.copy()
+divisor_len = len(divisor)
+dividend += ['0'] * (divisor_len - 1)
+d = []
+dividend_len = len(dividend)
+
+for i in range(divisor_len, dividend_len + 1):
+    if dividend[0] == '1':
+        c = XOR(dividend[0:divisor_len], divisor)
+        for i in range(divisor_len):
+            dividend[i] = c[i]
+        dividend.pop(0)
+        d.append('1')
+    else:
+        dividend.pop(0)
+        d.append('0')
+
+crc = crc + dividend
+crca = "".join(crc)
+print("Received CRC:", crca)
+
+crc_len = len(crca)
+
+for i in range(divisor_len, crc_len + 1):
+    if crc[0] == '1':
+        c = XOR(crc[0:divisor_len], divisor)
+        for i in range(divisor_len):
+            crc[i] = c[i]
+        crc.pop(0)
+    else:
+        crc.pop(0)
+
+remainder = "".join(crc)
+print("Remainder when Input Bits Code is divided with Divisor is:", remainder)
